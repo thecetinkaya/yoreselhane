@@ -1,4 +1,11 @@
 import type { Product } from './slices/productsSlice'
+import beypazari from './images/beypazari.png'
+import bal from './images/bal.png'
+import ceviz from './images/ceviz.png'
+import findik from './images/findik.png'
+import pekmez from './images/pekmez.png'
+import yesilzeytin from './images/yesilzeytin.png'
+import koyunpeyniri from './images/koyunpeyniri.png'
 
 export const mockProducts: Product[] = [
 	{
@@ -6,72 +13,73 @@ export const mockProducts: Product[] = [
 		title: 'Ezine Koyun Peyniri 600g',
 		slug: 'ezine-koyun-peyniri-600g',
 		price: 349.9,
-		image: '/images/peynir-ezine.jpg',
+		image: koyunpeyniri,
 		category: 'peynir',
 		description: 'Marmara bölgesinden, tam yağlı koyun sütünden üretilmiş Ezine peyniri.',
-		badges: ['Popüler']
+		badges: ['Popüler'],
+		gtin13: '8680000000001',
+		aggregateRating: { ratingValue: 4.7, reviewCount: 24 }
 	},
 	{
 		id: '2',
-		title: 'Trakya Eski Kaşar 500g',
-		slug: 'trakya-eski-kasar-500g',
+		title: 'Ceviz içi 1000g',
+		slug: 'ceviz-ici-1000g',
 		price: 289.5,
-		image: '/images/kasar-trakya.jpg',
-		category: 'peynir',
-		description: 'Uzun süre dinlendirilmiş tam kıvamında eski kaşar.',
+		image: ceviz,
+		category: 'ceviz',
+		description: 'Üstün kalite ceviz içi.',
+		gtin13: '8680000000002'
 	},
 	{
 		id: '3',
-		title: 'Gemlik Siyah Zeytin 1kg',
-		slug: 'gemlik-siyah-zeytin-1kg',
+		title: 'Beypazarı Kuru 1kg',
+		slug: 'beypazari-kuru-1kg',
 		price: 229.0,
-		image: '/images/zeytin-gemlik.jpg',
-		category: 'zeytin',
-		description: 'Kahvaltıların vazgeçilmezi, etli ve az tuzlu Gemlik zeytini.',
+		image: beypazari,
+		category: 'kahvaltilik', // Kategori kahvaltilik olarak değiştirildi
+		description: 'Ankara Beypazarı\'ndan meşhur, tereyağlı ve lezzetli kurusu.',
+		gtin13: '8680000000003'
 	},
 	{
 		id: '4',
-		title: 'Süzme Çiçek Balı 850g',
-		slug: 'suzme-cicek-bali-850g',
+		title: 'Üzüm Pekmezi 1000g',
+		slug: 'uzum-pekmezi-1000g',
 		price: 199.9,
-		image: '/images/bal-cicek.jpg',
-		category: 'bal',
-		description: 'Yüksek rakım yaylalarından doğal süzme bal.',
+		image: pekmez,
+		category: 'pekmez',
+		description: 'Doğal süzme pekmez.',
+		gtin13: '8680000000004'
 	},
 	{
 		id: '5',
-		title: 'Kars Gravyeri 400g',
-		slug: 'kars-gravyeri-400g',
+		title: 'Giresun Fındığı 1000g',
+		slug: 'giresun-findigi-1000g',
 		price: 379.0,
-		image: '/images/gravyer-kars.jpg',
-		category: 'peynir',
-		description: 'Kars yöresine özgü, zengin aromalı gravyer peyniri.',
+		image: findik,
+		category: 'findik',
+		description: 'Giresun yöresine özgü, zengin lezzetli fındık.',
+		gtin13: '8680000000005'
 	},
 	{
 		id: '6',
 		title: 'Yeşil Kırma Zeytin 1kg',
 		slug: 'yesil-kirma-zeytin-1kg',
 		price: 189.9,
-		image: '/images/zeytin-yesil.jpg',
+		image: yesilzeytin,
 		category: 'zeytin',
 		description: 'Ege’den hafif tuzlu, limonlu salamurada kırma zeytin.',
+		gtin13: '8680000000006'
 	},
 	{
 		id: '7',
-		title: 'Çam Balı 850g',
-		slug: 'cam-bali-850g',
+		title: 'Sivas Yayla Balı 1000g',
+		slug: 'sivas-yayla-bali-1000g',
 		price: 209.9,
-		image: '/images/bal-cam.jpg',
+		image: bal,
 		category: 'bal',
-		description: 'Doğal çam balı, koyu renk ve yoğun lezzet.',
-	},
-	{
-		id: '8',
-		title: 'Lor Peyniri 500g',
-		slug: 'lor-peyniri-500g',
-		price: 79.9,
-		image: '/images/lor.jpg',
-		category: 'peynir',
-		description: 'Kahvaltılık ve börekler için hafif lor peyniri.',
+		description: 'Doğal çiçek balı, sivas yaylalarında üretilmiştir.',
+		badges: ['Yeni'],
+		gtin13: '8680000000007',
+		aggregateRating: { ratingValue: 4.4, reviewCount: 8 }
 	},
 ]

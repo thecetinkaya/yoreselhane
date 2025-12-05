@@ -11,6 +11,8 @@ export type Product = {
 	category: string
 	description: string
 	badges?: string[]
+	gtin13?: string
+	aggregateRating?: { ratingValue: number; reviewCount: number }
 }
 
 export type ProductsState = {

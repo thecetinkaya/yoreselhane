@@ -1,9 +1,22 @@
-import { useEffect } from 'react'
-import { useAppDispatch, useAppSelector } from '../hooks'
-import { setCatalog, selectProductsCatalog } from '../slices/productsSlice'
-import { mockProducts } from '../sampleData'
-import { Link } from 'react-router-dom'
-import HeroSlider from '../components/HeroSlider'
+import { useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { setCatalog, selectProductsCatalog, type Product } from '../slices/productsSlice';
+import { addToCart } from '../slices/cartSlice';
+import { mockProducts } from '../sampleData';
+import { Link } from 'react-router-dom';
+import HeroSlider from '../components/HeroSlider';
+import slideImage1 from '../assets/1.png';
+import slideImage2 from '../assets/2.png';
+import slideImage3 from '../assets/3.png';
+import { FiSearch, FiHeart } from 'react-icons/fi';
+import filigran from '../images/filigran.png'
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+import { SLIDER_COUNT } from '../config/constants';
+
+// Swiper stilleri
+import 'swiper/css';
+import 'swiper/css/navigation';
 
 export default function HomePage() {
 	const dispatch = useAppDispatch()
@@ -13,6 +26,8 @@ export default function HomePage() {
 		dispatch(setCatalog(mockProducts))
 	}, [dispatch])
 
+	// (Promo banner moved to top bar in Layout)
+
 	return (
 		<div className="space-y-16">
 			{/* Hero Slider */}
@@ -21,26 +36,20 @@ export default function HomePage() {
 					{
 						id: '1',
 						title: "Anadolu'nun Yöresel Lezzetleri",
-						subtitle: 'Peynir, zeytin, bal ve daha fazlası',
-						cta: { label: 'Alışverişe Başla', to: '/kategori/peynir' },
-						bg: 'linear-gradient(135deg, #f59e0b, #d97706)',
-						image: '/api/placeholder/1200/600'
+						linkTo: '/kategori/peynir',
+						image: slideImage1
 					},
 					{
 						id: '2',
 						title: 'Doğal ve Taze Ürünler',
-						subtitle: 'Üreticiden sofranıza',
-						cta: { label: 'Koleksiyonu Gör', to: '/kategori/bal' },
-						bg: 'linear-gradient(135deg, #84cc16, #15803d)',
-						image: '/api/placeholder/1200/600'
+						linkTo: '/kategori/bal',
+						image: slideImage2
 					},
 					{
 						id: '3',
 						title: 'Haftanın Fırsatları',
-						subtitle: 'Seçili ürünlerde indirimler',
-						cta: { label: 'İncele', to: '/kategori/zeytin' },
-						bg: 'linear-gradient(135deg, #dc2626, #ea580c)',
-						image: '/api/placeholder/1200/600'
+						linkTo: '/kategori/zeytin',
+						image: slideImage3
 					},
 				]}
 			/>
@@ -48,43 +57,61 @@ export default function HomePage() {
 			{/* Categories Section */}
 			<section className="px-0 lg:px-0">
 				<div className="w-full">
-					<div className="text-center mb-10">
-						<h2 className="text-3xl font-bold bg-gradient-to-r from-[var(--brand-200)] to-[var(--brand-300)] bg-clip-text text-transparent mb-3">
-							Lezzet Kategorileri
+					<div className="text-center mb-6">
+						<h2 className="text-4xl font-extrabold text-slate-900 mb-3">
+							Yeni Ürünler
 						</h2>
-						<p className="text-[var(--brand-300)]/60 text-lg">
-							Anadolu'nun eşsiz lezzetlerini keşfedin
-						</p>
+						<div>
+							<Link to="/kategori/yeni-urunler" className="inline-block text-sm text-[var(--brand-300)] hover:text-[var(--brand-200)]">
+								Kategoriye Git
+							</Link>
+						</div>
 					</div>
-					<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-						<CategoryCard title="Peynir Çeşitleri" slug="peynir" icon="🧀" />
-						<CategoryCard title="Zeytin & Zeytinyağı" slug="zeytin" icon="🫒" />
-						<CategoryCard title="Doğal Ballar" slug="bal" icon="🍯" />
-						<CategoryCard title="Kahvaltılık" slug="kahvaltilik" icon="🍞" />
-					</div>
+					{/* Yeni Ürünler Slider'ı (Kategori kartları yerine) */}
+					<Swiper
+						modules={[Navigation]}
+						spaceBetween={20}
+						slidesPerView={4}
+						navigation
+						breakpoints={{
+							320: { slidesPerView: 1, spaceBetween: 12 },
+							640: { slidesPerView: 2, spaceBetween: 16 },
+							768: { slidesPerView: 3, spaceBetween: 20 },
+							1024: { slidesPerView: 4, spaceBetween: 24 },
+						}}
+						className="!pb-10"
+					>
+						{products.slice(0, Math.min(products.length, SLIDER_COUNT)).map((p: Product) => (
+							<SwiperSlide key={p.id}>
+								<ProductCard product={p} />
+							</SwiperSlide>
+						))}
+					</Swiper>
 				</div>
 			</section>
 
+
+
 			{/* Featured Products */}
-			<section className="px-0 lg:px-0">
+			<section>
 				<div className="w-full">
 					<div className="text-center mb-10">
-						<h2 className="text-3xl font-bold bg-gradient-to-r from-[var(--brand-200)] to-[var(--brand-300)] bg-clip-text text-transparent mb-3">
+						<h2 className="text-3xl font-bold text-slate-800 mb-2">
 							Öne Çıkan Ürünler
 						</h2>
-						<p className="text-[var(--brand-300)]/60 text-lg">
+						<p className="text-slate-500 text-lg">
 							En çok tercih edilen premium ürünler
 						</p>
 					</div>
-					<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-						{products.slice(0, 10).map((p: { id: string; title: string; price: number; image: string; slug: string }) => (
+					<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+						{products.slice(0, 4).map((p: Product) => (
 							<ProductCard key={p.id} product={p} />
 						))}
 					</div>
-					<div className="text-center mt-10">
+					<div className="text-center mt-12">
 						<Link
 							to="/tum-urunler"
-							className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-[var(--brand-200)]/20 to-[var(--brand-300)]/20 border border-[var(--brand-300)]/30 text-[var(--brand-300)] font-semibold hover:from-[var(--brand-200)]/30 hover:to-[var(--brand-300)]/30 hover:border-[var(--brand-300)]/40 transition-all duration-200"
+							className="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-slate-800 text-white font-semibold hover:bg-slate-900 transition-colors"
 						>
 							Tüm Ürünleri Gör
 							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,115 +122,66 @@ export default function HomePage() {
 				</div>
 			</section>
 
-			{/* Promo Banner */}
-			<section className="px-0 lg:px-0">
-				<div className="w-full">
-					<div className="rounded-2xl bg-[var(--brand-100)] border border-[var(--brand-300)]/20 p-8 md:p-12 text-center">
-						<h3 className="text-2xl md:text-3xl font-bold text-[var(--brand-300)] mb-4">
-							🚚 300 TL ve Üzeri Alışverişlerde <span className="text-[var(--brand-200)]">Kargo Bedava!</span>
-						</h3>
-						<p className="text-[var(--brand-300)]/60 text-lg mb-6">
-							Anadolu'nun lezzetlerini kapınıza kadar getiriyoruz
-						</p>
-						<Link
-							to="/kampanyalar"
-							className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[var(--brand-200)] to-[var(--brand-300)] text-[var(--brand-300)] font-semibold transition-all duration-200 shadow-lg shadow-[var(--brand-300)]/25"
-						>
-							Kampanyaları İncele
-							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-							</svg>
-						</Link>
-					</div>
-				</div>
-			</section>
 
-			{/* Features */}
+			{/* Promo banner removed from HomePage — now displayed in Layout top bar */}
+
+			{/* Filigran / Trust banner under features, above footer */}
 			<section className="px-0 lg:px-0">
-				<div className="w-full">
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-						<div className="text-center p-6 rounded-2xl bg-gradient-to-br from-[var(--brand-200)]/10 to-[var(--brand-300)]/10 border border-[var(--brand-300)]/20">
-							<div className="w-12 h-12 bg-gradient-to-r from-[var(--brand-200)] to-[var(--brand-300)] rounded-xl flex items-center justify-center mx-auto mb-4">
-								<span className="text-xl">🚚</span>
-							</div>
-							<h4 className="font-bold text-[var(--brand-300)] mb-2">Hızlı Teslimat</h4>
-							<p className="text-[var(--brand-300)]/60 text-sm">Aynı gün kargo fırsatı</p>
-						</div>
-						<div className="text-center p-6 rounded-2xl bg-gradient-to-br from-[var(--brand-200)]/10 to-[var(--brand-300)]/10 border border-[var(--brand-300)]/20">
-							<div className="w-12 h-12 bg-gradient-to-r from-[var(--brand-200)] to-[var(--brand-300)] rounded-xl flex items-center justify-center mx-auto mb-4">
-								<span className="text-xl">🌱</span>
-							</div>
-							<h4 className="font-bold text-[var(--brand-300)] mb-2">%100 Doğal</h4>
-							<p className="text-[var(--brand-300)]/60 text-sm">Katkısız, doğal ürünler</p>
-						</div>
-						<div className="text-center p-6 rounded-2xl bg-gradient-to-br from-[var(--brand-200)]/10 to-[var(--brand-300)]/10 border border-[var(--brand-300)]/20">
-							<div className="w-12 h-12 bg-gradient-to-r from-[var(--brand-200)] to-[var(--brand-300)] rounded-xl flex items-center justify-center mx-auto mb-4">
-								<span className="text-xl">💝</span>
-							</div>
-							<h4 className="font-bold text-[var(--brand-300)] mb-2">Özel Paket</h4>
-							<p className="text-[var(--brand-300)]/60 text-sm">Hediye paketleme hizmeti</p>
-						</div>
-					</div>
+				<div className="w-full flex justify-center py-8">
+					<img src={filigran} alt="Güven ve Hızlı Teslimat" className="w-full max-w-5xl object-contain opacity-90" />
 				</div>
 			</section>
 		</div>
 	)
 }
 
-function CategoryCard({ title, slug, icon }: { title: string; slug: string; icon: string }) {
-	return (
-		<Link
-			to={`/kategori/${slug}`}
-			className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--brand-200)]/10 to-[var(--brand-300)]/10 border border-[var(--brand-300)]/20 p-6 text-center hover:from-[var(--brand-200)]/20 hover:to-[var(--brand-300)]/20 hover:border-[var(--brand-300)]/40 hover:shadow-2xl hover:shadow-[var(--brand-300)]/10 transition-all duration-300 transform hover:-translate-y-1"
-		>
-			<div className="w-16 h-16 bg-gradient-to-r from-[var(--brand-200)] to-[var(--brand-300)] rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-				<span className="text-2xl">{icon}</span>
-			</div>
-			<h3 className="font-bold text-[var(--brand-300)] text-lg mb-2">{title}</h3>
-			<p className="text-[var(--brand-300)]/60 text-sm group-hover:text-[var(--brand-200)] transition-colors duration-200">
-				Keşfet
-			</p>
-			<div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-200)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-		</Link>
-	)
-}
+function ProductCard({ product }: { product: Product }) {
+	const dispatch = useAppDispatch()
 
-function ProductCard({ product }: { product: { id: string; title: string; price: number; image: string; slug: string } }) {
-	return (
-		<Link
-			to={`/urun/${product.slug}`}
-			className="group relative bg-gradient-to-br from-[var(--brand-200)]/5 to-[var(--brand-300)]/5 border border-[var(--brand-300)]/20 rounded-2xl p-4 hover:from-[var(--brand-200)]/10 hover:to-[var(--brand-300)]/10 hover:border-[var(--brand-300)]/40 hover:shadow-2xl hover:shadow-[var(--brand-300)]/10 transition-all duration-300 transform hover:-translate-y-1"
-		>
-			{/* Product Image */}
-			<div className="aspect-square rounded-xl bg-gradient-to-br from-[var(--brand-200)]/10 to-[var(--brand-300)]/10 mb-4 overflow-hidden">
-				<div className="w-full h-full bg-[var(--brand-200)]/5 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
-					<span className="text-3xl text-[var(--brand-300)]/40">🛒</span>
-				</div>
-			</div>
+	const handleAddToCart = (e: React.MouseEvent) => {
+		e.preventDefault()
+		e.stopPropagation()
+		dispatch(addToCart(product))
+	}
 
-			{/* Product Info */}
-			<div className="space-y-2">
-				<h3 className="font-medium text-[var(--brand-300)]/90 text-sm line-clamp-2 group-hover:text-[var(--brand-300)] transition-colors duration-200">
-					{product.title}
-				</h3>
-				<div className="flex items-center justify-between">
-					<span className="font-bold text-[var(--brand-300)] text-lg">
-						{product.price.toFixed(2)} TL
-					</span>
-					<button
-						onClick={(e) => {
-							e.preventDefault()
-							// Add to cart logic here
-						}}
-						className="opacity-0 group-hover:opacity-100 w-8 h-8 bg-gradient-to-r from-[var(--brand-200)] to-[var(--brand-300)] rounded-lg flex items-center justify-center text-[var(--brand-300)] transition-all duration-200 hover:scale-110"
-					>
-						+
+	return (
+		<div className="group relative text-center border border-transparent hover:border-slate-200 rounded-lg transition-all duration-300">
+			{/* Resim Alanı - square card using Tailwind */}
+			<div className="relative overflow-hidden rounded-lg">
+				<Link to={`/urun/${product.slug}`} className="block">
+					<div className="relative aspect-square w-full">
+						<img
+							src={product.image}
+							alt={product.title}
+							className="w-full h-full object-cover transition-transform duration-300 relative z-10"
+							loading="lazy"
+							decoding="async"
+						/>
+
+						{/* Title & price - moved below image; no gradient on image */}
+
+						{/* Sliding add-to-cart: visible by default on mobile, slides up on md+ hover */}
+						<div className="absolute left-0 right-0 bottom-0 translate-y-0 opacity-100 pointer-events-auto z-20 md:translate-y-full md:opacity-0 md:pointer-events-none md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-hover:pointer-events-auto transition-transform transition-opacity duration-500 ease-out">
+							<button onClick={handleAddToCart} className="w-full py-2 md:py-3 bg-slate-900 text-white font-semibold md:font-extrabold text-sm md:text-base">+ SEPETE EKLE</button>
+						</div>
+					</div>
+				</Link>
+
+				{/* Hover icons (centered) */}
+				<div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+					<Link to={`/urun/${product.slug}`} className="flex items-center justify-center w-10 h-10 bg-white rounded-full shadow-md hover:bg-slate-100 transition-colors" title="Ürünü İncele">
+						<FiSearch className="w-5 h-5 text-slate-600" />
+					</Link>
+					<button onClick={() => { /* Favori Ekleme Mantığı */ }} className="flex items-center justify-center w-10 h-10 bg-white rounded-full shadow-md hover:bg-slate-100 transition-colors" title="Favorilere Ekle">
+						<FiHeart className="w-5 h-5 text-slate-600" />
 					</button>
 				</div>
 			</div>
-
-			{/* Hover Effect */}
-			<div className="absolute inset-0 border-2 border-[var(--brand-300)]/0 group-hover:border-[var(--brand-300)]/20 rounded-2xl transition-all duration-300" />
-		</Link>
+			{/* Title & price below image (moved outside overflow-hidden so CTA can't cover it) */}
+			<div className="mt-3 px-2">
+				<div className="font-semibold text-sm line-clamp-2 text-slate-800">{product.title}</div>
+				<div className="font-extrabold text-lg text-slate-900">{product.price.toFixed(2)} TL</div>
+			</div>
+		</div>
 	)
 }
