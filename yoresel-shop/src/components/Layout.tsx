@@ -1,14 +1,18 @@
 import { Link, NavLink } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { useState, useRef, useEffect } from 'react'
 import type { RootState } from '../store'
+import { logout } from '../slices/authSlice'
 // İkonları react-icons kütüphanesinden içe aktarıyoruz
-import { FiSearch, FiUser, FiHeart, FiShoppingCart } from 'react-icons/fi'
+import { FiSearch, FiUser, FiHeart, FiShoppingCart, FiChevronRight } from 'react-icons/fi'
 import logo from '../assets/logo.png'
 import Seo from './Seo'
+import WhatsAppButton from './WhatsAppButton'
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from '../config/constants'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+	const dispatch = useDispatch()
+	const { isAuthenticated, user } = useSelector((state: RootState) => state.auth)
 	const { items: cartItems, totalQuantity: cartQty } = useSelector((s: RootState) => s.cart)
 	const cartItemsList = Object.values(cartItems)
 	const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -79,7 +83,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
 						{/* 2. Navigasyon Linkleri (Orta) */}
 						{/* Arama çubuğunu kaldırdım ve navigasyonu buraya taşıdım */}
-						<nav className="hidden xl:flex items-center gap-3 font-heading font-light">
+						<nav className="hidden xl:flex items-center gap-3 font-heading font-bold">
 							<NavItem to="/" label="Ana Sayfa" />
 							<NavItem to="/kategori/peynir" label="Peynir Çeşitleri" />
 							<NavItem to="/kategori/zeytin" label="Zeytin & Zeytinyağı" />
@@ -95,10 +99,55 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 								<FiSearch />
 							</button>
 
-							{/* Hesap İkonu */}
-							<Link to="/hesabim" className="text-2xl text-slate-700 hover:text-slate-900 transition-colors">
-								<FiUser />
-							</Link>
+							{/* Hesap Alanı */}
+							<div className="relative group h-full flex items-center">
+								{isAuthenticated ? (
+									<div className="flex items-center gap-2 cursor-pointer text-slate-700 hover:text-slate-900 transition-colors py-2">
+										<FiUser className="text-2xl" />
+										<span className="text-sm font-medium hidden xl:block">Hesabım | Çıkış Yap</span>
+										
+										{/* Dropdown Menu */}
+										<div className="absolute top-full right-0 w-60 bg-white border border-slate-200 rounded-b-lg shadow-lg py-2 hidden group-hover:block z-50">
+											<div className="px-4 py-3 border-b border-slate-100">
+												<p className="text-sm font-semibold text-slate-800">{user?.name}</p>
+											</div>
+											<div className="py-1">
+												<Link to="/siparislerim" className="flex items-center justify-between px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-orange-600">
+													Siparişlerim <FiChevronRight />
+												</Link>
+												<Link to="/hesabim" className="flex items-center justify-between px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-orange-600">
+													Hesabım <FiChevronRight />
+												</Link>
+												<Link to="/favoriler" className="flex items-center justify-between px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-orange-600">
+													Favorilerim <FiChevronRight />
+												</Link>
+												<Link to="/hesabim/adres-defterim" className="flex items-center justify-between px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-orange-600">
+													Adres Defterim <FiChevronRight />
+												</Link>
+												<Link to="/iadelerim" className="flex items-center justify-between px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-orange-600">
+													İade Taleplerim <FiChevronRight />
+												</Link>
+												<Link to="/kargo-takip" className="flex items-center justify-between px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-orange-600">
+													Kargom Nerede <FiChevronRight />
+												</Link>
+											</div>
+											<div className="border-t border-slate-100 mt-1 pt-1 bg-slate-50">
+												<button 
+													onClick={() => dispatch(logout())}
+													className="w-full flex items-center justify-between px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 hover:text-red-600 text-left"
+												>
+													Çıkış Yap <FiChevronRight />
+												</button>
+											</div>
+										</div>
+									</div>
+								) : (
+									<Link to="/giris" className="flex items-center gap-2 text-slate-700 hover:text-slate-900 transition-colors">
+										<FiUser className="text-2xl" />
+										<span className="text-sm font-medium hidden xl:block">Giriş Yap | Kayıt Ol</span>
+									</Link>
+								)}
+							</div>
 
 							{/* Favoriler İkonu (peynere.com'da var) */}
 							<Link to="/favoriler" className="hidden sm:block text-2xl text-slate-700 hover:text-slate-900 transition-colors">
@@ -225,6 +274,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 					© {new Date().getFullYear()} Yöreselhane. Tüm hakları saklıdır.
 				</div>
 			</footer>
+
+			{/* WhatsApp Floating Button */}
+			<WhatsAppButton />
 		</div>
 	)
 }

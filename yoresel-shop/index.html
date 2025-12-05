@@ -1,7 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="tr">
 
 <head>
+  <!-- Google tag (gtag.js) - otomatik olarak yüklenir -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XFZ0PDZNSG"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);} gtag('js', new Date());
+    gtag('config', 'G-XFZ0PDZNSG');
+  </script>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/icon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,7 +17,6 @@
     content="Türkiye'nin dört bir yanından özenle seçilmiş premium yöresel lezzetler. Hızlı teslimat ve güvenli alışveriş." />
   <meta name="keywords" content="yöresel, peynir, zeytin, bal, kahvaltılık, yöresel ürünler, doğal ürünler" />
   <meta name="robots" content="index, follow" />
-  <!-- canonical is set dynamically per-page by the Seo component; avoid bare '/' which Vite may try to read as a directory during build -->
 
   <!-- Open Graph -->
   <meta property="og:site_name" content="YöreselHane" />
@@ -31,10 +37,37 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
     rel="stylesheet">
+
 </head>
 
 <body>
   <div id="root"></div>
+
+  <!-- Küçük çerez notu (sağ alt) - yalnızca bilgilendirme, küçük ve kapatılabilir -->
+  <div id="cookie-note" aria-live="polite" style="position:fixed;right:1rem;bottom:1rem;background:rgba(17,24,39,0.9);color:#fff;padding:0.4rem 0.75rem;border-radius:999px;display:flex;align-items:center;gap:.5rem;box-shadow:0 6px 18px rgba(2,6,23,.5);z-index:9999;font-family:Inter, system-ui, Arial, sans-serif;font-size:13px">
+  <span>Çerez kullanımı: Sitemiz analiz amaçlı çerezler kullanır. <a href="/kvkk" style="color:#9ca3af;margin-left:6px;text-decoration:underline">KVKK & Gizlilik</a></span>
+    <button id="cookie-note-close" aria-label="kapat" style="background:transparent;border:none;color:#9ca3af;font-size:16px;line-height:1;padding:0 0.25rem;cursor:pointer">×</button>
+  </div>
+
+  <script>
+    // Küçük çerez notu davranışı: kapatıldığında localStorage'a kaydet (tekrar gösterme)
+    (function () {
+      const KEY = 'yoreselhane_cookie_note_dismissed_v1';
+      const note = document.getElementById('cookie-note');
+      if (!note) return;
+      try {
+        if (localStorage.getItem(KEY) === '1') { note.style.display = 'none'; }
+      } catch (e) { /* ignore storage errors */ }
+
+      const btn = document.getElementById('cookie-note-close');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        try { localStorage.setItem(KEY, '1'); } catch (e) { /* ignore */ }
+        note.style.display = 'none';
+      });
+    })();
+  </script>
+
   <script type="module" src="/src/main.tsx"></script>
 </body>
 
