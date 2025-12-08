@@ -18,3 +18,10 @@ body {
 }
 
 /* All product layout and interactions are implemented with Tailwind utility classes. */
+
+/* Swiper Navigation Customization */
+/* Custom buttons are now used in HomePage.tsx, so we hide default navigation if any remains */
+.swiper-button-next,
+.swiper-button-prev {
+  display: none !important;
+}

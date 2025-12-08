@@ -1,5 +1,9 @@
 import './App.css'
+import { useEffect } from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
+import { useAppDispatch } from './hooks'
+import { setCatalog } from './slices/productsSlice'
+import { mockProducts } from './sampleData'
 import HomePage from './pages/HomePage'
 import CategoryPage from './pages/CategoryPage'
 import ProductDetailPage from './pages/ProductDetailPage'
@@ -18,6 +22,12 @@ import Layout from './components/Layout'
 import ScrollToTop from './components/ScrollToTop'
 
 function App() {
+  const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    dispatch(setCatalog(mockProducts))
+  }, [dispatch])
+
   return (
     <Layout>
       <ScrollToTop />

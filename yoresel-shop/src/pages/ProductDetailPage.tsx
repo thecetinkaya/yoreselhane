@@ -12,28 +12,41 @@ export default function ProductDetailPage() {
 	const { slug } = useParams()
 	const [qty, setQty] = useState(1)
 	
-	// Gramaj seçenekleri (Frontend simülasyonu)
-	const weightOptions = [
-		{ label: '500 gr', multiplier: 0.5 }, // 500gr genelde tam yarısı olmaz, biraz daha pahalı olur
-		{ label: '1000 gr', multiplier: 1.0 }
-	]
-	const [selectedWeight, setSelectedWeight] = useState(weightOptions[1])
-
 	const dispatch = useDispatch<AppDispatch>()
 	const products = useSelector((s: RootState) => s.products.catalog)
-	const product = useMemo(() => products.find(p => p.slug === slug), [products, slug])
+	const product = useMemo(
+    () => products.find(p => p.slug.toLowerCase() === slug?.toLowerCase()), 
+    [products, slug]
+)
+
+	// Gramaj seçenekleri (Ürüne özel veya varsayılan yok)
+	const weightOptions = useMemo(() => {
+		if (!product) return []
+		return product.weightOptions || []
+	}, [product])
+
+	const [selectedWeight, setSelectedWeight] = useState(weightOptions.length > 0 ? weightOptions[weightOptions.length - 1] : null)
+
+	// Ürün değiştiğinde seçili ağırlığı güncelle
+	useMemo(() => {
+		if (weightOptions.length > 0) {
+			setSelectedWeight(weightOptions[weightOptions.length - 1])
+		} else {
+			setSelectedWeight(null)
+		}
+	}, [weightOptions])
 
 	if (!product) {
 		return <div className="py-20 text-center text-slate-600 text-lg">Ürün bulunamadı.</div>
 	}
 
 	// Seçilen gramaja göre fiyat hesaplama
-	const currentPrice = product.price * selectedWeight.multiplier
+	const currentPrice = selectedWeight ? product.price * selectedWeight.multiplier : product.price
 
 	const handleAddToCart = () => {
 		dispatch(addToCart({ 
-			id: `${product.id}-${selectedWeight.label}`, // ID'yi benzersiz yap (varyasyon için)
-			title: `${product.title} (${selectedWeight.label})`, 
+			id: selectedWeight ? `${product.id}-${selectedWeight.label}` : product.id, 
+			title: selectedWeight ? `${product.title} (${selectedWeight.label})` : product.title, 
 			price: currentPrice, 
 			image: product.image, 
 			quantity: qty 
@@ -120,24 +133,26 @@ export default function ProductDetailPage() {
 					</div>
 
 					{/* Ağırlık Seçimi */}
-					<div className="mb-8">
-						<span className="block text-sm text-slate-500 mb-2">Ağırlık</span>
-						<div className="flex gap-2">
-							{weightOptions.map((option) => (
-								<button
-									key={option.label}
-									onClick={() => setSelectedWeight(option)}
-									className={`px-4 py-2 border rounded text-sm transition-colors ${
-										selectedWeight.label === option.label
-											? 'bg-slate-900 text-white border-slate-900'
-											: 'border-slate-200 hover:border-slate-900 text-slate-700'
-									}`}
-								>
-									{option.label}
-								</button>
-							))}
+					{weightOptions.length > 0 && selectedWeight && (
+						<div className="mb-8">
+							<span className="block text-sm text-slate-500 mb-2">Ağırlık</span>
+							<div className="flex gap-2">
+								{weightOptions.map((option) => (
+									<button
+										key={option.label}
+										onClick={() => setSelectedWeight(option)}
+										className={`px-4 py-2 border rounded text-sm transition-colors ${
+											selectedWeight?.label === option.label
+												? 'bg-slate-900 text-white border-slate-900'
+												: 'border-slate-200 hover:border-slate-900 text-slate-700'
+										}`}
+									>
+										{option.label}
+									</button>
+								))}
+							</div>
 						</div>
-					</div>
+					)}
 
 					{/* Fiyat */}
 					<div className="text-3xl font-bold text-slate-900 mb-8">
@@ -198,6 +213,16 @@ export default function ProductDetailPage() {
 					</div>
 				</div>
 			</div>
+
+			{/* Etiketler Alanı */}
+			{product.tags && product.tags.length > 0 && (
+				<div className="mt-16 mb-12 px-4">
+					<h3 className="text-center font-bold text-slate-900 mb-4">Etiketler</h3>
+					<p className="text-center text-sm text-slate-500 leading-relaxed max-w-5xl mx-auto">
+						{product.tags.join(', ')}
+					</p>
+				</div>
+			)}
 		</>
 	)
 }

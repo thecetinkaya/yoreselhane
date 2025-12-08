@@ -1,7 +1,7 @@
 // Shared UI constants
 export const SLIDER_COUNT = 8
 // SEO / site constants
-export const SITE_TITLE = 'YöreselHane'
-export const SITE_DESCRIPTION = "Türkiye'nin dört bir yanından özenle seçilmiş premium yöresel lezzetler. Hızlı teslimat ve güvenli alışveriş."
+export const SITE_TITLE = 'Yöreselhane'
+export const SITE_DESCRIPTION = "Başta doğal bal çeşitleri olmak üzere Türkiye'nin dört bir yanından özenle seçilmiş premium yöresel lezzetler."
 export const SITE_URL = 'https://yoreselhane.com' // production URL
-export const SITE_TWITTER = '@yoreselhane'
+export const SITE_TWITTER = '@yoreselhanecom'

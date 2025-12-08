@@ -11,11 +11,8 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  isAuthenticated: true, // Simulating logged in state for demonstration as per request "eğer kullanıcı giriş yaptı ise"
-  user: {
-    name: 'Burak Çetinkaya',
-    email: 'burak@example.com'
-  }
+  isAuthenticated: false,
+  user: null
 }
 
 export const authSlice = createSlice({

@@ -16,7 +16,9 @@ export const mockProducts: Product[] = [
 		image: koyunpeyniri,
 		category: 'peynir',
 		description: 'Marmara bölgesinden, tam yağlı koyun sütünden üretilmiş Ezine peyniri.',
+		weightOptions: [{ label: '300 gr', multiplier: 0.5 }, { label: '600 gr', multiplier: 1.0 }],
 		badges: ['Popüler'],
+		tags: ['ezine peyniri', 'koyun peyniri', 'tam yağlı peynir', 'yöresel peynir', 'doğal peynir', 'kahvaltılık', 'şarküteri', 'ezine peyniri fiyatı', 'hakiki ezine peyniri', 'çanakkale ezine', 'sert peynir', 'peynir çeşitleri', 'organik peynir', 'katkısız peynir'],
 		gtin13: '8680000000001',
 		aggregateRating: { ratingValue: 4.7, reviewCount: 24 }
 	},
@@ -24,20 +26,24 @@ export const mockProducts: Product[] = [
 		id: '2',
 		title: 'Ceviz içi 1000g',
 		slug: 'ceviz-ici-1000g',
-		price: 289.5,
+		price: 320.0,
 		image: ceviz,
 		category: 'ceviz',
 		description: 'Üstün kalite ceviz içi.',
+		weightOptions: [{ label: '500 gr', multiplier: 0.5 }, { label: '1000 gr', multiplier: 1.0 }],
+		tags: ['ceviz içi', 'yerli ceviz', 'doğal ceviz', 'kabuksuz ceviz', 'ceviz fiyatları', 'taze ceviz', 'kuruyemiş', 'sağlıklı atıştırmalık', 'omega 3 kaynağı', 'yöresel ürünler', 'organik ceviz', 'katkısız gıda', 'ceviz satın al'],
 		gtin13: '8680000000002'
 	},
 	{
 		id: '3',
-		title: 'Beypazarı Kuru 1kg',
-		slug: 'beypazari-kuru-1kg',
-		price: 229.0,
+		title: 'Beypazarı Kurusu',
+		slug: 'beypazari-kurusu-1kg',
+		price: 350.0,
 		image: beypazari,
 		category: 'kahvaltilik', // Kategori kahvaltilik olarak değiştirildi
 		description: 'Ankara Beypazarı\'ndan meşhur, tereyağlı ve lezzetli kurusu.',
+		weightOptions: [{ label: '500 gr', multiplier: 0.5 }, { label: '1000 gr', multiplier: 1.0 }],
+		tags: ['beypazarı kurusu', 'ankara beypazarı', 'yöresel kurabiye', 'tereyağlı kuru', 'çay saati', 'geleneksel lezzetler', 'beypazarı kurusu fiyatı', 'taze kuru', 'fırın ürünleri', 'doğal atıştırmalık', 'katkısız kuru', 'meşhur beypazarı kurusu'],
 		gtin13: '8680000000003'
 	},
 	{
@@ -48,17 +54,8 @@ export const mockProducts: Product[] = [
 		image: pekmez,
 		category: 'pekmez',
 		description: 'Doğal süzme pekmez.',
+		tags: ['üzüm pekmezi', 'doğal pekmez', 'şekersiz pekmez', 'organik pekmez', 'ev yapımı pekmez', 'pekmez fiyatı', 'yöresel pekmez', 'şifalı pekmez', 'katkısız pekmez', 'hakiki pekmez', 'pekmez satın al', 'kan yapıcı', 'enerji deposu', 'geleneksel pekmez'],
 		gtin13: '8680000000004'
-	},
-	{
-		id: '5',
-		title: 'Giresun Fındığı 1000g',
-		slug: 'giresun-findigi-1000g',
-		price: 379.0,
-		image: findik,
-		category: 'findik',
-		description: 'Giresun yöresine özgü, zengin lezzetli fındık.',
-		gtin13: '8680000000005'
 	},
 	{
 		id: '6',
@@ -68,16 +65,19 @@ export const mockProducts: Product[] = [
 		image: yesilzeytin,
 		category: 'zeytin',
 		description: 'Ege’den hafif tuzlu, limonlu salamurada kırma zeytin.',
+		weightOptions: [{ label: '500 gr', multiplier: 0.5 }, { label: '1000 gr', multiplier: 1.0 }],
+		tags: ['kırma zeytin', 'yeşil zeytin', 'ege zeytini', 'doğal zeytin', 'ev yapımı zeytin', 'salamura zeytin', 'kahvaltılık zeytin', 'zeytin fiyatları', 'katkısız zeytin', 'yöresel zeytin', 'hatay zeytini', 'edremit zeytini', 'organik zeytin'],
 		gtin13: '8680000000006'
 	},
 	{
 		id: '7',
-		title: 'Sivas Yayla Balı 1000g',
-		slug: 'sivas-yayla-bali-1000g',
-		price: 209.9,
+		title: 'Hakiki Sivas Yayla Petek Balı',
+		slug: 'sivas-yayla-petek-bali-1000g',
+		price: 2250.0,
 		image: bal,
 		category: 'bal',
 		description: 'Doğal çiçek balı, sivas yaylalarında üretilmiştir.',
+		tags: ['sivas balı', 'petek bal', 'yayla balı', 'çiçek balı', 'doğal bal', 'hakiki bal', 'şeker ilavesiz bal', 'organik bal', 'bal fiyatları', 'şifalı bal', 'kahvaltılık bal', 'yöresel bal', 'katkısız bal', 'sivas yayla balı', 'kovan balı'],
 		badges: ['Yeni'],
 		gtin13: '8680000000007',
 		aggregateRating: { ratingValue: 4.4, reviewCount: 8 }

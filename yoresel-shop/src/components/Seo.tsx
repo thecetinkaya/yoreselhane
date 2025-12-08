@@ -6,11 +6,17 @@ type Props = {
     description?: string
     url?: string
     image?: string
+    overrideTitle?: string
 }
 
-export default function Seo({ title, description, url, image }: Props) {
+export default function Seo({ title, description, url, image, overrideTitle }: Props) {
     useEffect(() => {
-        const fullTitle = title ? `${title} | ${SITE_TITLE}` : SITE_TITLE
+        let fullTitle = SITE_TITLE
+        if (overrideTitle) {
+            fullTitle = overrideTitle
+        } else if (title && title !== SITE_TITLE) {
+            fullTitle = `${title} | ${SITE_TITLE}`
+        }
         document.title = fullTitle
 
         const setMeta = (name: string, content?: string) => {
