@@ -1,12 +1,16 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { FcGoogle } from 'react-icons/fc'
 import Seo from '../components/Seo'
+import { supabase } from '../lib/subabase'
+import { useAppDispatch } from '../hooks'
+import { login } from '../slices/authSlice'
 
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login')
   const [showPassword, setShowPassword] = useState(false)
+  // navigation and dispatch will be used inside form components via hooks
 
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
@@ -49,11 +53,34 @@ export default function AuthPage() {
 }
 
 function LoginForm({ showPassword, setShowPassword }: { showPassword: boolean, setShowPassword: (v: boolean) => void }) {
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    const res = await supabase.auth.signInWithPassword({ email, password })
+    setLoading(false)
+    if (res.error) {
+      alert(res.error.message)
+      return
+    }
+    // dispatch to redux
+    const user = res.data?.user
+  dispatch(login({ name: user?.email || '', email: user?.email || '' }))
+    navigate('/')
+  }
+
   return (
-    <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+    <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="space-y-4">
         <div>
           <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             type="email"
             placeholder="E-posta"
             className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#19262e] focus:border-transparent transition-all"
@@ -61,6 +88,8 @@ function LoginForm({ showPassword, setShowPassword }: { showPassword: boolean, s
         </div>
         <div className="relative">
           <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             type={showPassword ? "text" : "password"}
             placeholder="Şifre"
             className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#19262e] focus:border-transparent transition-all"
@@ -74,12 +103,12 @@ function LoginForm({ showPassword, setShowPassword }: { showPassword: boolean, s
           </button>
         </div>
       </div>
-
       <button
         type="submit"
-        className="w-full py-3 px-4 bg-[#19262e] text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20"
+        disabled={loading}
+        className={`w-full py-3 px-4 bg-[#19262e] text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20 ${loading ? 'opacity-60' : ''}`}
       >
-        Giriş Yap
+        {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
       </button>
 
       <div className="flex justify-end">
@@ -111,26 +140,61 @@ function LoginForm({ showPassword, setShowPassword }: { showPassword: boolean, s
 }
 
 function RegisterForm({ showPassword, setShowPassword }: { showPassword: boolean, setShowPassword: (v: boolean) => void }) {
+  const navigate = useNavigate()
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [phone, setPhone] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    const fullName = `${firstName} ${lastName}`.trim()
+    const res = await supabase.auth.signUp({ email, password })
+    setLoading(false)
+    if (res.error) {
+      alert(res.error.message)
+      return
+    }
+    // if user created, upsert profile as fallback (the DB trigger may also create it)
+    const user = res.data?.user
+    if (user) {
+      await supabase.from('profiles').upsert({ id: user.id, full_name: fullName, phone }).select()
+    }
+    alert('Kayıt başarılı. Lütfen e-posta adresinizi doğrulayın.')
+    navigate('/')
+  }
+
   return (
-    <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+    <form className="space-y-5" onSubmit={handleRegister}>
       <div className="space-y-4">
         <input
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
           type="text"
           placeholder="Adınız"
           className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#19262e] focus:border-transparent transition-all"
         />
         <input
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
           type="text"
           placeholder="Soyadınız"
           className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#19262e] focus:border-transparent transition-all"
         />
         <input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           type="email"
           placeholder="E-posta"
           className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#19262e] focus:border-transparent transition-all"
         />
         <div className="relative">
           <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             type={showPassword ? "text" : "password"}
             placeholder="Şifre"
             className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#19262e] focus:border-transparent transition-all"
@@ -151,6 +215,8 @@ function RegisterForm({ showPassword, setShowPassword }: { showPassword: boolean
             <span className="text-sm font-medium">+90</span>
           </div>
           <input
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
             type="tel"
             placeholder="501 234 56 78"
             className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-[#19262e] focus:border-transparent transition-all"
@@ -193,9 +259,10 @@ function RegisterForm({ showPassword, setShowPassword }: { showPassword: boolean
 
       <button
         type="submit"
-        className="w-full py-3 px-4 bg-[#19262e] text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20 mt-4"
+        disabled={loading}
+        className={`w-full py-3 px-4 bg-[#19262e] text-white font-semibold rounded-lg hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20 mt-4 ${loading ? 'opacity-60' : ''}`}
       >
-        Üye Ol
+        {loading ? 'Kayıt yapılıyor...' : 'Üye Ol'}
       </button>
       
       <div className="pt-4">
