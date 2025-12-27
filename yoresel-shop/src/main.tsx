@@ -5,13 +5,20 @@ import { BrowserRouter } from 'react-router-dom'
 import { store } from './store'
 import App from './App.tsx'
 import './index.css'
+import { initAuthListener } from './lib/subabase'
+  // store already imported above
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Provider>
-  </React.StrictMode>,
-)
+  // Initialize Supabase auth listener and wait for current session before rendering
+  ; (async () => {
+    await initAuthListener(store.dispatch)
+
+    ReactDOM.createRoot(document.getElementById('root')!).render(
+      <React.StrictMode>
+        <Provider store={store}>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </Provider>
+      </React.StrictMode>,
+    )
+  })()

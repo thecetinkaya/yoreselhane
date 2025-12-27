@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState, AppDispatch } from '../store'
 import { addToCart } from '../slices/cartSlice'
+import { openCart, showNotification } from '../slices/uiSlice'
 import Seo from '../components/Seo'
 import { SITE_URL } from '../config/constants'
 import { FiHeart, FiPhone, FiShoppingCart, FiShare2, FiEdit3, FiMinus, FiPlus } from 'react-icons/fi'
@@ -11,13 +12,13 @@ import { FaWhatsapp } from 'react-icons/fa'
 export default function ProductDetailPage() {
 	const { slug } = useParams()
 	const [qty, setQty] = useState(1)
-	
+
 	const dispatch = useDispatch<AppDispatch>()
 	const products = useSelector((s: RootState) => s.products.catalog)
 	const product = useMemo(
-    () => products.find(p => p.slug.toLowerCase() === slug?.toLowerCase()), 
-    [products, slug]
-)
+		() => products.find(p => p.slug.toLowerCase() === slug?.toLowerCase()),
+		[products, slug]
+	)
 
 	// Gramaj seçenekleri (Ürüne özel veya varsayılan yok)
 	const weightOptions = useMemo(() => {
@@ -44,13 +45,23 @@ export default function ProductDetailPage() {
 	const currentPrice = selectedWeight ? product.price * selectedWeight.multiplier : product.price
 
 	const handleAddToCart = () => {
-		dispatch(addToCart({ 
-			id: selectedWeight ? `${product.id}-${selectedWeight.label}` : product.id, 
-			title: selectedWeight ? `${product.title} (${selectedWeight.label})` : product.title, 
-			price: currentPrice, 
-			image: product.image, 
-			quantity: qty 
+		dispatch(addToCart({
+			id: selectedWeight ? `${product.id}-${selectedWeight.label}` : product.id,
+			title: selectedWeight ? `${product.title} (${selectedWeight.label})` : product.title,
+			price: currentPrice,
+			image: product.image,
+			quantity: qty
 		}))
+
+		// show a small notification (rich payload) and open cart preview briefly
+		dispatch(showNotification({
+			title: 'Ürün sepete eklendi',
+			message: `${product.title}${selectedWeight ? ` (${selectedWeight.label})` : ''}`,
+			type: 'success',
+			actionLabel: 'Sepete git',
+			actionUrl: '/sepet',
+		}))
+		dispatch(openCart())
 	}
 
 	const increaseQty = () => setQty(q => q + 1)
@@ -95,10 +106,10 @@ export default function ProductDetailPage() {
 				{/* Sol Taraf: Ürün Görseli */}
 				<div className="space-y-4">
 					<div className="aspect-square rounded-xl bg-white border border-slate-100 overflow-hidden relative group">
-						<img 
-							src={product.image} 
-							alt={product.title} 
-							className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-105" 
+						<img
+							src={product.image}
+							alt={product.title}
+							className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
 						/>
 						{/* Büyüteç ikonu eklenebilir */}
 					</div>
@@ -115,7 +126,7 @@ export default function ProductDetailPage() {
 				{/* Sağ Taraf: Ürün Bilgileri */}
 				<div className="flex flex-col">
 					<h1 className="text-3xl md:text-4xl font-medium text-slate-900 mb-4 font-heading">{product.title}</h1>
-					
+
 					{/* Yıldızlar ve Yorum Sayısı */}
 					<div className="flex items-center gap-2 mb-6">
 						<div className="flex text-yellow-400 text-sm">
@@ -141,11 +152,10 @@ export default function ProductDetailPage() {
 									<button
 										key={option.label}
 										onClick={() => setSelectedWeight(option)}
-										className={`px-4 py-2 border rounded text-sm transition-colors ${
-											selectedWeight?.label === option.label
-												? 'bg-slate-900 text-white border-slate-900'
-												: 'border-slate-200 hover:border-slate-900 text-slate-700'
-										}`}
+										className={`px-4 py-2 border rounded text-sm transition-colors ${selectedWeight?.label === option.label
+											? 'bg-slate-900 text-white border-slate-900'
+											: 'border-slate-200 hover:border-slate-900 text-slate-700'
+											}`}
 									>
 										{option.label}
 									</button>
@@ -177,13 +187,13 @@ export default function ProductDetailPage() {
 						</button>
 
 						{/* Favori Butonu */}
-						<button className="w-12 h-12 border border-slate-300 rounded-full flex items-center justify-center text-slate-600 hover:border-slate-900 hover:text-slate-900 transition-colors">
+						<button aria-label="Favorilere ekle" title="Favorilere ekle" className="w-12 h-12 border border-slate-300 rounded-full flex items-center justify-center text-slate-600 hover:border-slate-900 hover:text-slate-900 transition-colors self-center order-last sm:order-none">
 							<FiHeart className="text-xl" />
 						</button>
 					</div>
 
 					{/* WhatsApp Sipariş Butonu */}
-					<a 
+					<a
 						href={`https://wa.me/905428407589?text=Merhaba, ${product.title} ürünü hakkında bilgi almak istiyorum.`}
 						target="_blank"
 						rel="noopener noreferrer"
@@ -205,7 +215,7 @@ export default function ProductDetailPage() {
 							<FiShare2 /> Fiyat Düşünce Haber Ver
 						</Link>
 					</div>
-					
+
 					<div className="mt-4 pt-4">
 						<Link to="/giris" className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors">
 							<FiEdit3 /> Yorum Yaz

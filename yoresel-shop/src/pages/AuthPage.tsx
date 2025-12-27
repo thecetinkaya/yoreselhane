@@ -15,26 +15,26 @@ export default function AuthPage() {
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
       <Seo title={activeTab === 'login' ? 'Giriş Yap' : 'Üye Ol'} />
-      
+
       <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-xl shadow-sm border border-slate-100">
         {/* Tabs */}
         <div className="flex border-b border-slate-200 mb-8">
           <button
-            className={`flex-1 pb-4 text-center font-medium text-lg transition-colors relative ${
-              activeTab === 'login' 
-                ? 'text-[#19262e] border-b-2 border-[#19262e]' 
+            type="button"
+            className={`flex-1 pb-4 text-center font-medium text-lg transition-colors relative ${activeTab === 'login'
+                ? 'text-[#19262e] border-b-2 border-[#19262e]'
                 : 'text-slate-400 hover:text-slate-600'
-            }`}
+              }`}
             onClick={() => setActiveTab('login')}
           >
             Giriş Yap
           </button>
           <button
-            className={`flex-1 pb-4 text-center font-medium text-lg transition-colors relative ${
-              activeTab === 'register' 
-                ? 'text-[#19262e] border-b-2 border-[#19262e]' 
+            type="button"
+            className={`flex-1 pb-4 text-center font-medium text-lg transition-colors relative ${activeTab === 'register'
+                ? 'text-[#19262e] border-b-2 border-[#19262e]'
                 : 'text-slate-400 hover:text-slate-600'
-            }`}
+              }`}
             onClick={() => setActiveTab('register')}
           >
             Üye Ol
@@ -58,6 +58,7 @@ function LoginForm({ showPassword, setShowPassword }: { showPassword: boolean, s
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,17 +66,28 @@ function LoginForm({ showPassword, setShowPassword }: { showPassword: boolean, s
     const res = await supabase.auth.signInWithPassword({ email, password })
     setLoading(false)
     if (res.error) {
-      alert(res.error.message)
+      const msg = res.error.message || 'Giriş yapılamadı.'
+      // if error mentions confirmation, provide friendly advice
+      if (/confirm|verification|verified|doğrul|confirmation/i.test(msg)) {
+        setMessage({ type: 'info', text: 'E-posta adresinizi doğrulamanız gerekiyor. Lütfen gelen kutunuzu kontrol edin.' })
+      } else {
+        setMessage({ type: 'error', text: msg })
+      }
       return
     }
     // dispatch to redux
     const user = res.data?.user
-  dispatch(login({ name: user?.email || '', email: user?.email || '' }))
+    dispatch(login({ name: user?.email || '', email: user?.email || '' }))
     navigate('/')
   }
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
+      {message && (
+        <div className={`px-4 py-3 rounded-md text-sm ${message.type === 'error' ? 'bg-red-50 text-red-700 border border-red-100' : message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-blue-50 text-blue-700 border border-blue-100'}`}>
+          {message.text}
+        </div>
+      )}
       <div className="space-y-4">
         <div>
           <input
@@ -147,28 +159,73 @@ function RegisterForm({ showPassword, setShowPassword }: { showPassword: boolean
   const [password, setPassword] = useState('')
   const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null)
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    const fullName = `${firstName} ${lastName}`.trim()
-    const res = await supabase.auth.signUp({ email, password })
-    setLoading(false)
-    if (res.error) {
-      alert(res.error.message)
+    console.log('handleRegister start', { firstName, lastName, email, phone })
+    setMessage(null)
+    // basic client-side validation
+    const trimmedEmail = email.trim()
+    const trimmedPassword = password
+    if (!trimmedEmail || !/^\S+@\S+\.\S+$/.test(trimmedEmail)) {
+      setMessage({ type: 'error', text: 'Lütfen geçerli bir e-posta adresi girin.' })
       return
     }
-    // if user created, upsert profile as fallback (the DB trigger may also create it)
-    const user = res.data?.user
-    if (user) {
-      await supabase.from('profiles').upsert({ id: user.id, full_name: fullName, phone }).select()
+    if (!trimmedPassword || trimmedPassword.length < 6) {
+      setMessage({ type: 'error', text: 'Şifre en az 6 karakter olmalıdır.' })
+      return
     }
-    alert('Kayıt başarılı. Lütfen e-posta adresinizi doğrulayın.')
-    navigate('/')
+    setLoading(true)
+    try {
+      const fullName = `${firstName} ${lastName}`.trim()
+      // include user metadata so the DB trigger can populate profiles (full_name, phone)
+      const res = await supabase.auth.signUp({
+        email: trimmedEmail,
+        password: trimmedPassword,
+        options: { data: { full_name: fullName, phone } }
+      })
+      console.log('supabase.signUp result', res)
+      if (res.error) {
+        // show server error to user
+        setMessage({ type: 'error', text: res.error.message })
+        return
+      }
+
+      // if user created, upsert profile as fallback (the DB trigger may also create it)
+      const user = res.data?.user
+      const session = res.data?.session
+      if (user && session) {
+        // we have a session (user is signed in) so we can upsert the profile as that user
+        const upsertRes = await supabase.from('profiles').upsert({ id: user.id, full_name: fullName, phone }).select()
+        console.log('profile upsert', upsertRes)
+      } else if (user && !session) {
+        // No session: signUp completed but user must confirm email before signing in.
+        console.log('user created but no session (email confirmation required). Skipping profile upsert to avoid 401')
+      }
+
+      // Don't navigate when email confirmation is required (no session). Show inline message instead.
+      if (session) {
+        setMessage({ type: 'success', text: 'Kayıt başarılı. Sisteme giriş yapıldı.' })
+        navigate('/')
+      } else {
+        setMessage({ type: 'info', text: 'Kayıt başarılı. Lütfen e-posta adresinizi doğrulayın.' })
+      }
+    } catch (err) {
+      console.error('handleRegister error', err)
+      setMessage({ type: 'error', text: 'Kayıt sırasında beklenmeyen bir hata oluştu. Konsolu kontrol edin.' })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <form className="space-y-5" onSubmit={handleRegister}>
+      {message && (
+        <div className={`px-4 py-3 rounded-md text-sm ${message.type === 'error' ? 'bg-red-50 text-red-700 border border-red-100' : message.type === 'success' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-blue-50 text-blue-700 border border-blue-100'}`}>
+          {message.text}
+        </div>
+      )}
       <div className="space-y-4">
         <input
           value={firstName}
@@ -207,7 +264,7 @@ function RegisterForm({ showPassword, setShowPassword }: { showPassword: boolean
             {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
           </button>
         </div>
-        
+
         {/* Phone Input with Flag */}
         <div className="flex">
           <div className="flex items-center justify-center px-3 bg-slate-50 border border-r-0 border-slate-200 rounded-l-lg text-slate-500">
@@ -264,7 +321,7 @@ function RegisterForm({ showPassword, setShowPassword }: { showPassword: boolean
       >
         {loading ? 'Kayıt yapılıyor...' : 'Üye Ol'}
       </button>
-      
+
       <div className="pt-4">
         <button
           type="button"

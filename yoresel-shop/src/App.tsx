@@ -18,6 +18,7 @@ import NotificationPreferencesPage from './pages/account/NotificationPreferences
 import OrdersPage from './pages/account/OrdersPage'
 import ReturnRequestsPage from './pages/account/ReturnRequestsPage'
 import CancelRequestsPage from './pages/account/CancelRequestsPage'
+import PrivateRoute from './components/PrivateRoute'
 import Layout from './components/Layout'
 import ScrollToTop from './components/ScrollToTop'
 
@@ -40,16 +41,16 @@ function App() {
         <Route path="/tum-urunler" element={<AllProductsPage />} />
         <Route path="/sepet" element={<CartPage />} />
         <Route path="/kvkk" element={<KvkkPage />} />
-        
+
         {/* Account Routes */}
         <Route path="/hesabim" element={<Navigate to="/hesabim/uyelik-bilgileri" replace />} />
-        <Route path="/hesabim/uyelik-bilgileri" element={<AccountPage />} />
-        <Route path="/hesabim/sifre-degistir" element={<ChangePasswordPage />} />
-        <Route path="/hesabim/adres-defterim" element={<AddressBookPage />} />
-        <Route path="/hesabim/duyuru-tercihleri" element={<NotificationPreferencesPage />} />
-        <Route path="/siparislerim" element={<OrdersPage />} />
-        <Route path="/iadelerim" element={<ReturnRequestsPage />} />
-        <Route path="/iptal-taleplerim" element={<CancelRequestsPage />} />
+        <Route path="/hesabim/uyelik-bilgileri" element={<PrivateRoute><AccountPage /></PrivateRoute>} />
+        <Route path="/hesabim/sifre-degistir" element={<PrivateRoute><ChangePasswordPage /></PrivateRoute>} />
+        <Route path="/hesabim/adres-defterim" element={<PrivateRoute><AddressBookPage /></PrivateRoute>} />
+        <Route path="/hesabim/duyuru-tercihleri" element={<PrivateRoute><NotificationPreferencesPage /></PrivateRoute>} />
+        <Route path="/siparislerim" element={<PrivateRoute><OrdersPage /></PrivateRoute>} />
+        <Route path="/iadelerim" element={<PrivateRoute><ReturnRequestsPage /></PrivateRoute>} />
+        <Route path="/iptal-taleplerim" element={<PrivateRoute><CancelRequestsPage /></PrivateRoute>} />
       </Routes>
     </Layout>
   )

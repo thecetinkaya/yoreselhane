@@ -43,9 +43,9 @@ export default function HomePage() {
 			/>
 
 			{/* Yeni Ürünler Slider */}
-			<ProductSlider 
-				title="Yeni Ürünler" 
-				products={products.slice(0, Math.min(products.length, SLIDER_COUNT))} 
+			<ProductSlider
+				title="Yeni Ürünler"
+				products={products.slice(0, Math.min(products.length, SLIDER_COUNT))}
 				linkTo="/kategori/yeni-urunler"
 			/>
 
@@ -60,13 +60,13 @@ export default function HomePage() {
 							En çok tercih edilen premium ürünler
 						</p>
 					</div>
-					
+
 					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 px-4 md:px-12">
 						{products.slice(0, 4).map((p: Product) => (
 							<ProductCard key={p.id} product={p} />
 						))}
 					</div>
-					
+
 					<div className="text-center mt-12">
 						<Link
 							to="/kategori/tum-urunler"

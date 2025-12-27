@@ -1,175 +1,131 @@
 import AccountLayout from '../../components/AccountLayout'
-import { FiRefreshCw } from 'react-icons/fi'
+import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/subabase'
 
 export default function AccountPage() {
+  const [fullName, setFullName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [marketing, setMarketing] = useState(true)
+  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+      ; (async () => {
+        try {
+          const { data: sessionData } = await supabase.auth.getSession()
+          const user = sessionData?.session?.user
+          if (!user) return
+
+          setEmail(user.email || '')
+
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('full_name, phone')
+            .eq('id', user.id)
+            .single()
+
+          if (error) {
+            console.warn('profiles select error', error)
+          }
+
+          if (profile && mounted) {
+            setFullName(profile.full_name || '')
+            setPhone(profile.phone || '')
+          }
+        } catch (err) {
+          console.error('load profile failed', err)
+        }
+      })()
+
+    return () => { mounted = false }
+  }, [])
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setMessage(null)
+    setLoading(true)
+    try {
+      const { data: sessionData } = await supabase.auth.getSession()
+      const user = sessionData?.session?.user
+      if (!user) {
+        setMessage({ type: 'error', text: 'Giriş yapılmamış. Lütfen giriş yapın.' })
+        setLoading(false)
+        return
+      }
+
+      const full_name = fullName.trim()
+      const phoneTrim = phone.trim()
+
+      const { error } = await supabase.from('profiles').upsert({ id: user.id, full_name, phone: phoneTrim })
+      if (error) {
+        setMessage({ type: 'error', text: error.message })
+      } else {
+        setMessage({ type: 'success', text: 'Profil bilgileriniz güncellendi.' })
+      }
+    } catch (err) {
+      console.error(err)
+      setMessage({ type: 'error', text: 'Güncelleme sırasında hata oluştu.' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <AccountLayout>
-      <form className="space-y-6">
+      <form className="space-y-6" onSubmit={handleSave}>
+        {message && (
+          <div className={`px-4 py-3 rounded-md text-sm ${message.type === 'error' ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-green-50 text-green-700 border border-green-100'}`}>
+            {message.text}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Ad */}
           <div>
-            <label className="block text-sm text-slate-500 mb-1">Adınız*</label>
-            <input 
-              type="text" 
-              defaultValue="Burak"
+            <label className="block text-sm text-slate-500 mb-1">Ad & Soyad</label>
+            <input
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               className="w-full px-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-orange-500 text-slate-800"
             />
           </div>
 
-          {/* Ülke */}
           <div>
-            <label className="block text-sm text-slate-500 mb-1">Ülke</label>
-            <select className="w-full px-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-orange-500 text-slate-800 bg-white">
-              <option>Türkiye</option>
-            </select>
+            <label className="block text-sm text-slate-500 mb-1">E-posta</label>
+            <input
+              type="email"
+              value={email}
+              readOnly
+              className="w-full px-4 py-2 border border-slate-200 rounded bg-slate-100 text-slate-800"
+            />
           </div>
 
-          {/* Soyad */}
           <div>
-            <label className="block text-sm text-slate-500 mb-1">Soyadınız*</label>
-            <input 
-              type="text" 
-              defaultValue="Çetinkaya"
+            <label className="block text-sm text-slate-500 mb-1">Cep Telefonu *</label>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               className="w-full px-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-orange-500 text-slate-800"
             />
           </div>
 
-          {/* Şehir */}
           <div>
-            <label className="block text-sm text-slate-500 mb-1">Şehir</label>
-            <select className="w-full px-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-orange-500 text-slate-800 bg-white">
-              <option>Şehir Seçiniz</option>
-              <option>İstanbul</option>
-              <option>Ankara</option>
-              <option>İzmir</option>
-            </select>
-          </div>
-
-          {/* Cep Telefonu */}
-          <div>
-            <label className="block text-sm text-slate-500 mb-1">Cep Telefonunuz *</label>
-            <div className="flex">
-              <div className="flex items-center justify-center px-3 border border-r-0 border-slate-200 rounded-l bg-slate-50">
-                <img src="https://flagcdn.com/w20/tr.png" alt="TR" className="w-5" />
-                <span className="ml-1 text-xs text-slate-600">▼</span>
-              </div>
-              <input 
-                type="tel" 
-                defaultValue="+905428407589"
-                className="w-full px-4 py-2 border border-slate-200 rounded-r focus:outline-none focus:border-orange-500 text-slate-800"
-              />
+            <label className="block text-sm text-slate-500 mb-1">Bildirim Tercihleri</label>
+            <div className="flex items-center gap-3">
+              <input id="marketing" type="checkbox" checked={marketing} onChange={(e) => setMarketing(e.target.checked)} className="w-4 h-4" />
+              <label htmlFor="marketing" className="text-sm text-slate-600">Kampanya, duyuru ve bilgilendirmelerden haberdar olmak istiyorum.</label>
             </div>
-          </div>
-
-          {/* İlçe */}
-          <div>
-            <label className="block text-sm text-slate-500 mb-1">İlçe</label>
-            <select className="w-full px-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-orange-500 text-slate-800 bg-white">
-              <option>İlçe Seçiniz</option>
-            </select>
-          </div>
-
-          {/* E-posta */}
-          <div>
-            <label className="block text-sm text-slate-500 mb-1">E-posta Adresiniz</label>
-            <input 
-              type="email" 
-              defaultValue="burakcetinkaya2699@gmail.com"
-              className="w-full px-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-orange-500 text-slate-800"
-            />
-          </div>
-
-          {/* Öğrenim Durumu */}
-          <div>
-            <label className="block text-sm text-slate-500 mb-1">Öğrenim Durumu</label>
-            <select className="w-full px-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-orange-500 text-slate-800 bg-white">
-              <option>Seçiniz</option>
-              <option>İlköğretim</option>
-              <option>Lise</option>
-              <option>Üniversite</option>
-              <option>Yüksek Lisans</option>
-            </select>
-          </div>
-
-          {/* Cinsiyet */}
-          <div>
-            <label className="block text-sm text-slate-500 mb-2">Cinsiyet</label>
-            <div className="flex gap-6">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="gender" className="text-orange-500 focus:ring-orange-500" />
-                <span className="text-sm text-slate-600">Kadın</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="gender" className="text-orange-500 focus:ring-orange-500" />
-                <span className="text-sm text-slate-600">Erkek</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="gender" defaultChecked className="text-orange-500 focus:ring-orange-500" />
-                <span className="text-sm text-slate-600">Belirtmek İstemiyorum</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Meslek */}
-          <div>
-            <label className="block text-sm text-slate-500 mb-1">Meslek</label>
-            <input 
-              type="text" 
-              className="w-full px-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-orange-500 text-slate-800"
-            />
           </div>
         </div>
 
-        {/* Checkboxes */}
-        <div className="space-y-2 pt-2">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" defaultChecked className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4" />
-            <span className="text-sm text-slate-600">Kampanya, duyuru, bilgilendirmelerden e-posta ile haberdar olmak istiyorum.</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" defaultChecked className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4" />
-            <span className="text-sm text-slate-600">Kampanya, duyuru, bilgilendirmelerden sms ile haberdar olmak istiyorum.</span>
-          </label>
-        </div>
-
-        {/* Captcha */}
-        <div className="pt-2">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="bg-slate-100 px-4 py-2 text-2xl font-mono tracking-widest border border-slate-300 select-none relative overflow-hidden">
-              <span className="relative z-10 font-bold text-slate-700">2DB6HV</span>
-              {/* Random lines for captcha effect */}
-              <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
-                <svg className="w-full h-full" viewBox="0 0 100 40">
-                  <path d="M0,20 Q50,0 100,20" stroke="black" fill="none" />
-                  <path d="M0,10 Q50,30 100,10" stroke="blue" fill="none" />
-                  <path d="M10,0 L90,40" stroke="red" fill="none" />
-                </svg>
-              </div>
-            </div>
-            <button type="button" className="text-slate-500 hover:text-slate-700">
-              <FiRefreshCw className="text-xl" />
-            </button>
-          </div>
-          <input 
-            type="text" 
-            placeholder="Güvenlik Kodu"
-            className="w-full md:w-64 px-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-orange-500 text-slate-800"
-          />
-        </div>
-
-        {/* Buttons */}
         <div className="flex flex-col md:flex-row justify-end gap-4 pt-4 border-t border-slate-100">
-          <button type="button" className="px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm font-medium">
-            Üyelik Bilgilerimi Sil
-          </button>
-          <button type="submit" className="px-6 py-2 bg-[#00b853] text-white rounded hover:bg-[#00a048] transition-colors text-sm font-medium">
-            Kaydet
+          <button type="submit" disabled={loading} className="px-6 py-2 bg-[#00b853] text-white rounded hover:bg-[#00a048] transition-colors text-sm font-medium">
+            {loading ? 'Kaydediliyor...' : 'Güncelle'}
           </button>
         </div>
-
-        <p className="text-xs text-slate-500 mt-4">
-          *Üyelik bilgilerini sildiğinizde kişisel verilerin korunması kanunu gereği tüm bilgileriniz sistemden silinmekte olup, yeniden üye olmanız gerekmektedir.
-        </p>
       </form>
     </AccountLayout>
   )

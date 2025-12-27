@@ -3,13 +3,15 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useState, useRef, useEffect } from 'react'
 import type { RootState } from '../store'
 import { logout } from '../slices/authSlice'
+import { openCart, closeCart } from '../slices/uiSlice'
 // İkonları react-icons kütüphanesinden içe aktarıyoruz
-import { FiSearch, FiUser, FiHeart, FiShoppingCart, FiChevronRight, FiInstagram, FiFacebook,FiPhone } from 'react-icons/fi'
+import { FiSearch, FiUser, FiHeart, FiShoppingCart, FiChevronRight, FiInstagram, FiFacebook, FiPhone } from 'react-icons/fi'
 import { FaPinterest, FaTiktok, FaYoutube } from 'react-icons/fa'
 import logo from '../assets/logo.png'
 // footer image moved to public/images
 const footerImg = '/images/footer.png'
 import Seo from './Seo'
+import Notifications from './Notifications'
 import WhatsAppButton from './WhatsAppButton'
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from '../config/constants'
 
@@ -17,6 +19,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 	const dispatch = useDispatch()
 	const { isAuthenticated, user } = useSelector((state: RootState) => state.auth)
 	const { items: cartItems, totalQuantity: cartQty } = useSelector((s: RootState) => s.cart)
+	const uiIsCartOpen = useSelector((s: RootState) => s.ui.isCartOpen)
 	const cartItemsList = Object.values(cartItems)
 	const [isSearchOpen, setIsSearchOpen] = useState(false)
 	// Cart popup open state and a small close timer to avoid flicker when moving pointer
@@ -46,9 +49,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 		return () => clearInterval(interval)
 	}, [promoMessages.length])
 
+	// sync ui slice cart open state with local state
+	useEffect(() => {
+		setIsCartOpen(uiIsCartOpen)
+	}, [uiIsCartOpen])
+
 	return (
 		// peynere.com'daki gibi serif font ailesini kullanmak için font-serif ekledim
 		<div className="min-h-screen flex flex-col bg-white text-slate-900 font-sans">
+			<Notifications />
 			{/* Default SEO tags; pages can override by rendering their own <Seo /> */}
 			<Seo title={SITE_TITLE} description={SITE_DESCRIPTION} url={SITE_URL} />
 			{/* Top Bar (Bunu olduğu gibi bıraktım) */}
@@ -107,8 +116,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 								{isAuthenticated ? (
 									<div className="flex items-center gap-2 cursor-pointer text-slate-700 hover:text-slate-900 transition-colors py-2">
 										<FiUser className="text-2xl" />
-										<span className="text-sm font-medium hidden xl:block">Hesabım | Çıkış Yap</span>
-										
+										<span className="text-sm font-medium hidden xl:block">Hesabım</span>
+
 										{/* Dropdown Menu */}
 										<div className="absolute top-full right-0 w-60 bg-white border border-slate-200 rounded-b-lg shadow-lg py-2 hidden group-hover:block z-50">
 											<div className="px-4 py-3 border-b border-slate-100">
@@ -135,7 +144,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 												</Link>
 											</div>
 											<div className="border-t border-slate-100 mt-1 pt-1 bg-slate-50">
-												<button 
+												<button
 													onClick={() => dispatch(logout())}
 													className="w-full flex items-center justify-between px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 hover:text-red-600 text-left"
 												>
@@ -153,8 +162,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 							</div>
 
 							{/* Favoriler İkonu (peynere.com'da var) */}
-							<Link to="/favoriler" className="hidden sm:block text-2xl text-slate-700 hover:text-slate-900 transition-colors">
+							<Link to="/favoriler" className="hidden sm:flex flex-col items-center text-2xl text-slate-700 hover:text-slate-900 transition-colors">
 								<FiHeart />
+								<span className="text-sm font-medium hidden xl:block mt-1">Favorilerim</span>
 							</Link>
 
 							{/* Sepet İkonu - mouse enter/leave ile kontrol edilen popup (küçük gecikme ile) */}
@@ -163,6 +173,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 								onMouseEnter={() => {
 									// open immediately on enter
 									setIsCartOpen(true)
+									dispatch(openCart())
 									if (closeTimer.current) {
 										clearTimeout(closeTimer.current)
 										closeTimer.current = null
@@ -171,7 +182,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 								onMouseLeave={() => {
 									// small delay to allow pointer to move to popup without closing
 									if (closeTimer.current) clearTimeout(closeTimer.current)
-									closeTimer.current = window.setTimeout(() => setIsCartOpen(false), 150)
+									closeTimer.current = window.setTimeout(() => {
+										setIsCartOpen(false)
+										dispatch(closeCart())
+									}, 150)
 								}}
 								onFocus={() => setIsCartOpen(true)}
 								onBlur={() => setIsCartOpen(false)}
@@ -192,8 +206,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 											<div className="space-y-3">
 												{cartItemsList.slice(0, 3).map(item => (
 													<div key={item.id} className="flex items-center gap-3">
-														<div className="w-16 h-16 bg-slate-100 rounded">
-															{/* Ürün resmi buraya gelebilir */}
+														<div className="w-16 h-16 bg-slate-100 rounded overflow-hidden">
+															<img src={item.image} alt={item.title} className="w-full h-full object-cover" />
 														</div>
 														<div className="flex-1">
 															<p className="font-semibold text-sm text-slate-800">{item.title}</p>
@@ -267,7 +281,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 						<div>
 							<h4 className="font-bold text-slate-900 mb-6 border-b-2 border-slate-900 inline-block pb-1 text-sm tracking-wider">ALIŞVERİŞ</h4>
 							<ul className="space-y-3 text-sm text-slate-600">
-								<li><Link to="/hesabim" className="hover:text-slate-900 transition-colors">Hesabım</Link></li>
+								<li>
+									{isAuthenticated ? (
+										<Link to="/hesabim" className="hover:text-slate-900 transition-colors">Hesabım</Link>
+									) : (
+										<Link to="/giris" className="hover:text-slate-900 transition-colors">Giriş Yap</Link>
+									)}
+								</li>
 								<li><Link to="/sepet" className="hover:text-slate-900 transition-colors">Sepetim</Link></li>
 								<li><Link to="/siparislerim" className="hover:text-slate-900 transition-colors">Siparişlerim</Link></li>
 								<li><Link to="/iade" className="hover:text-slate-900 transition-colors">İptal ve İade Koşulları</Link></li>
@@ -288,10 +308,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 							<h4 className="font-bold text-slate-900 mb-6 border-b-2 border-slate-900 inline-block pb-1 text-sm tracking-wider">E-BÜLTEN</h4>
 							<p className="text-sm text-slate-600 mb-4 leading-relaxed">Takipte kalın. Fırsatlardan ilk siz haberdar olun!</p>
 							<div className="flex gap-2 mb-8">
-								<input 
-									type="email" 
-									placeholder="E-posta adresinizi yazın..." 
-									className="flex-1 border-b border-slate-300 py-2 focus:outline-none focus:border-slate-900 text-sm bg-transparent" 
+								<input
+									type="email"
+									placeholder="E-posta adresinizi yazın..."
+									className="flex-1 border-b border-slate-300 py-2 focus:outline-none focus:border-slate-900 text-sm bg-transparent"
 								/>
 								<button className="font-bold text-slate-900 border-b-2 border-slate-900 text-sm hover:text-slate-700 hover:border-slate-700 transition-colors">GÖNDER</button>
 							</div>
@@ -325,7 +345,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 							<img src={footerImg} alt="Ödeme Yöntemleri" className="h-8 md:h-10 object-contain opacity-80 grayscale hover:grayscale-0 transition-all" />
 						</div>
 					</div>
-					
+
 					{/* Copyright */}
 					<div className="text-center text-xs text-slate-400 mt-12">
 						<p>© {new Date().getFullYear()} Yöreselhane. Tüm hakları saklıdır.</p>
