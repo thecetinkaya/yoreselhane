@@ -1,10 +1,11 @@
 import type { Product } from './slices/productsSlice'
-import beypazari from './images/beypazari.png'
-import bal from './images/bal.png'
-import ceviz from './images/ceviz.png'
-import pekmez from './images/pekmez.png'
-import yesilzeytin from './images/yesilzeytin.png'
-import koyunpeyniri from './images/koyunpeyniri.png'
+// images moved to public/ so use absolute public URLs
+const beypazari = '/images/beypazari.png'
+const bal = '/images/bal.png'
+const ceviz = '/images/ceviz.png'
+const pekmez = '/images/pekmez.png'
+const yesilzeytin = '/images/yesilzeytin.png'
+const koyunpeyniri = '/images/koyunpeyniri.png'
 
 export const mockProducts: Product[] = [
 	{

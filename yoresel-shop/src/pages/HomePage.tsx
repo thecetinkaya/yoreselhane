@@ -8,7 +8,8 @@ import slideImage1 from '../assets/1.png';
 import slideImage2 from '../assets/2.png';
 import slideImage3 from '../assets/3.png';
 import { SLIDER_COUNT } from '../config/constants';
-import filigran from '../images/filigran.png';
+// moved to public/images
+const filigran = '/images/filigran.png';
 import ProductCard from '../components/ProductCard';
 
 export default function HomePage() {
