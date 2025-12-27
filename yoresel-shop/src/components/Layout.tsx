@@ -162,9 +162,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 							</div>
 
 							{/* Favoriler İkonu (peynere.com'da var) */}
-							<Link to="/favoriler" className="hidden sm:flex flex-col items-center text-2xl text-slate-700 hover:text-slate-900 transition-colors">
+							<Link to="/favoriler" className="hidden sm:flex items-center gap-2 text-2xl text-slate-700 hover:text-slate-900 transition-colors" aria-label="Favorilerim">
 								<FiHeart />
-								<span className="text-sm font-medium hidden xl:block mt-1">Favorilerim</span>
+								<span className="text-sm font-medium">Favorilerim</span>
 							</Link>
 
 							{/* Sepet İkonu - mouse enter/leave ile kontrol edilen popup (küçük gecikme ile) */}
