@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
 import BlogHomePage from './pages/blog/BlogHomePage'
 import BlogPostPage from './pages/blog/BlogPostPage'
 import AdminDashboard from './pages/blog/admin/AdminDashboard'
@@ -16,10 +16,10 @@ function BlogApp() {
             {/* Basit Header - Admin linki eklenebilir */}
             <header className="bg-white shadow-sm sticky top-0 z-50">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-                    <a href="/" className="text-xl font-bold text-slate-900">Yöreselhane<span className="text-blue-600">Blog</span></a>
+                    <Link to="/" className="text-xl font-bold text-slate-900">Yöreselhane<span className="text-blue-600">Blog</span></Link>
                     <nav className="hidden md:flex items-center gap-6">
-                        <a href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">Ana Sayfa</a>
-                        <a href="/admin" className="text-sm font-medium text-slate-600 hover:text-slate-900">Yönetim</a>
+                        <Link to="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">Ana Sayfa</Link>
+                        <Link to="/admin" className="text-sm font-medium text-slate-600 hover:text-slate-900">Yönetim</Link>
                     </nav>
                 </div>
             </header>
