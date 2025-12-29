@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
+supabase_blog.sql
+supabase_schema.sql
+supabase_seed.sql
 
 # Editor directories and files
 .vscode/*

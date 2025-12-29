@@ -7,9 +7,10 @@ type Props = {
     url?: string
     image?: string
     overrideTitle?: string
+    type?: string
 }
 
-export default function Seo({ title, description, url, image, overrideTitle }: Props) {
+export default function Seo({ title, description, url, image, overrideTitle, type = 'website' }: Props) {
     useEffect(() => {
         let fullTitle = SITE_TITLE
         if (overrideTitle) {
@@ -47,7 +48,7 @@ export default function Seo({ title, description, url, image, overrideTitle }: P
 
         setProp('og:title', fullTitle)
         setProp('og:description', description ?? SITE_DESCRIPTION)
-        setProp('og:type', 'website')
+        setProp('og:type', type)
         setProp('og:url', url ?? SITE_URL)
         setProp('og:image', image ?? '/assets/og-image.png')
 
@@ -61,7 +62,7 @@ export default function Seo({ title, description, url, image, overrideTitle }: P
         link.setAttribute('href', url ?? SITE_URL)
 
         // tidy up: no cleanup to keep site meta persistent
-    }, [title, description, url, image])
+    }, [title, description, url, image, overrideTitle, type])
 
     return null
 }
