@@ -1,0 +1,59 @@
+import './App.css'
+import { useEffect } from 'react'
+import { Route, Routes, Navigate } from 'react-router-dom'
+import { useAppDispatch } from './hooks'
+import { setCatalog } from './slices/productsSlice'
+import { mockProducts } from './sampleData'
+import HomePage from './pages/HomePage'
+import CategoryPage from './pages/CategoryPage'
+import ProductDetailPage from './pages/ProductDetailPage'
+import AllProductsPage from './pages/AllProductsPage'
+import CartPage from './pages/CartPage'
+import KvkkPage from './pages/KvkkPage'
+import AuthPage from './pages/AuthPage'
+import AccountPage from './pages/account/AccountPage'
+import ChangePasswordPage from './pages/account/ChangePasswordPage'
+import AddressBookPage from './pages/account/AddressBookPage'
+import NotificationPreferencesPage from './pages/account/NotificationPreferencesPage'
+import OrdersPage from './pages/account/OrdersPage'
+import ReturnRequestsPage from './pages/account/ReturnRequestsPage'
+import CancelRequestsPage from './pages/account/CancelRequestsPage'
+import PrivateRoute from './components/PrivateRoute'
+import Layout from './components/Layout'
+import ScrollToTop from './components/ScrollToTop'
+
+function MainApp() {
+    const dispatch = useAppDispatch()
+
+    useEffect(() => {
+        dispatch(setCatalog(mockProducts))
+    }, [dispatch])
+
+    return (
+        <Layout>
+            <ScrollToTop />
+            <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/giris" element={<AuthPage />} />
+                <Route path="/kategori/:slug" element={<CategoryPage />} />
+                {/* /yeni-urunler is handled by CategoryPage via slug 'yeni-urunler' */}
+                <Route path="/urun/:slug" element={<ProductDetailPage />} />
+                <Route path="/tum-urunler" element={<AllProductsPage />} />
+                <Route path="/sepet" element={<CartPage />} />
+                <Route path="/kvkk" element={<KvkkPage />} />
+
+                {/* Account Routes */}
+                <Route path="/hesabim" element={<Navigate to="/hesabim/uyelik-bilgileri" replace />} />
+                <Route path="/hesabim/uyelik-bilgileri" element={<PrivateRoute><AccountPage /></PrivateRoute>} />
+                <Route path="/hesabim/sifre-degistir" element={<PrivateRoute><ChangePasswordPage /></PrivateRoute>} />
+                <Route path="/hesabim/adres-defterim" element={<PrivateRoute><AddressBookPage /></PrivateRoute>} />
+                <Route path="/hesabim/duyuru-tercihleri" element={<PrivateRoute><NotificationPreferencesPage /></PrivateRoute>} />
+                <Route path="/siparislerim" element={<PrivateRoute><OrdersPage /></PrivateRoute>} />
+                <Route path="/iadelerim" element={<PrivateRoute><ReturnRequestsPage /></PrivateRoute>} />
+                <Route path="/iptal-taleplerim" element={<PrivateRoute><CancelRequestsPage /></PrivateRoute>} />
+            </Routes>
+        </Layout>
+    )
+}
+
+export default MainApp
