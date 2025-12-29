@@ -30,9 +30,9 @@ function BlogApp() {
                     <Route path="/giris" element={<AuthPage />} />
 
                     {/* Admin Routes */}
-                    <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
-                    <Route path="/admin/yeni" element={<PrivateRoute><PostEditorPage /></PrivateRoute>} />
-                    <Route path="/admin/duzenle/:id" element={<PrivateRoute><PostEditorPage /></PrivateRoute>} />
+                    <Route path="/admin" element={<PrivateRoute requireAdmin={true}><AdminDashboard /></PrivateRoute>} />
+                    <Route path="/admin/yeni" element={<PrivateRoute requireAdmin={true}><PostEditorPage /></PrivateRoute>} />
+                    <Route path="/admin/duzenle/:id" element={<PrivateRoute requireAdmin={true}><PostEditorPage /></PrivateRoute>} />
 
                     {/* Blog Detail - En sonda olmalı */}
                     <Route path="/:slug" element={<BlogPostPage />} />

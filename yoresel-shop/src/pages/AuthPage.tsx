@@ -22,8 +22,8 @@ export default function AuthPage() {
           <button
             type="button"
             className={`flex-1 pb-4 text-center font-medium text-lg transition-colors relative ${activeTab === 'login'
-                ? 'text-[#19262e] border-b-2 border-[#19262e]'
-                : 'text-slate-400 hover:text-slate-600'
+              ? 'text-[#19262e] border-b-2 border-[#19262e]'
+              : 'text-slate-400 hover:text-slate-600'
               }`}
             onClick={() => setActiveTab('login')}
           >
@@ -32,8 +32,8 @@ export default function AuthPage() {
           <button
             type="button"
             className={`flex-1 pb-4 text-center font-medium text-lg transition-colors relative ${activeTab === 'register'
-                ? 'text-[#19262e] border-b-2 border-[#19262e]'
-                : 'text-slate-400 hover:text-slate-600'
+              ? 'text-[#19262e] border-b-2 border-[#19262e]'
+              : 'text-slate-400 hover:text-slate-600'
               }`}
             onClick={() => setActiveTab('register')}
           >
@@ -77,7 +77,13 @@ function LoginForm({ showPassword, setShowPassword }: { showPassword: boolean, s
     }
     // dispatch to redux
     const user = res.data?.user
-    dispatch(login({ name: user?.email || '', email: user?.email || '' }))
+    if (user) {
+      dispatch(login({
+        id: user.id,
+        name: user.email || '',
+        email: user.email || ''
+      }))
+    }
     navigate('/')
   }
 
