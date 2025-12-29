@@ -244,10 +244,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 				</div>
 			)}
 
-			import Footer from './Footer'
-
-			// ...existing code...
-
 			{/* Main (Olduğu gibi) */}
 			<main className="flex-1 w-full font-sans"> {/* İçerik sans-serif kalabilir */}
 				<div className="mx-auto max-w-screen-2xl px-4 md:px-6 lg:px-8 py-8">
